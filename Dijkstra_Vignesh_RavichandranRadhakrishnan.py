@@ -1,188 +1,137 @@
-import cv2 as cv
-import numpy as np
 from queue import PriorityQueue
-import matplotlib.pyplot as plt
 import time
 import pygame as pyg
 
+start = time.time()
 
 def createMap():
     map = []
-
-    plt.xlim([0,601])
-    plt.ylim([0,251])
 
     # Starting clearance for wall
     for x in range(0,601):
         for y in range(0,6):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='clearance')
 
     for x in range(0,601):
         for y in range(245,251):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='clearance')
 
     for x in range(0,6):
         for y in range(0,251):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='clearance')
 
     for x in range(595,601):
         for y in range(0,251):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='clearance')
     # Ending clearance for wall
     
     # Rectangle
-    # Side 1
     for x in range(100,151):
         for y in range(0,101):
             map.append((x,y))
-            plt.scatter(x,y, c= "green", label='Map-rectangle')
 
     # Clearance
     for x in range(95,100):
         for y in range(0,101):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
-        for y in range(145,151):
-            map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
 
-    """ for x in range(95,100):
+    for x in range(95,100):
         for y in range(145,151):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle') """
     
+    ## Rectangle clearance and obstacle
     for x in range(100,151):
         for y in range(101,106):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
         for y in range(145,151):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
 
-    """ for x in range(100,151):
-        for y in range(145,151):
-            map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle') """
-    
     for x in range(151,156):
         for y in range(0,106):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
-        for y in range(145,151):
+        for y in range(145,250):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
-    
     
     for x in range(100,151):
         for y in range(150,251):
             map.append((x,y))
-            plt.scatter(x,y, c= "green", label='Map-rectangle')
     
     for x in range(95,100):
         for y in range(150,251):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
 
     for x in range(95,100):
         for y in range(100,105):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
     
     for x in range(100,151):
         for y in range(101,105):
             map.append((x,y))
-            plt.scatter(x,y, c= "blue", label='Map-rectangle')
     
-    # Dhanush
-    for x in range(460,601):
-        for y in range(25,121):
-            if 2*x - y <= 895:
-                map.append((x,y))
-                plt.scatter(x,y, c= "green", label='Map-rectangle')
-    
-    for x in range(460,511):
-        for y in range(125,226):
-            if 2*x+y <= 1145:
-                map.append((x,y))
-                plt.scatter(x,y, c= "green", label='Map-rectangle')
-    
-    for x in range(235,366):
-        for y in range(85,161):
+
+    ############ Triangle 
+
+    for x in range(455,460):
+        for y in range(20,230):
             map.append((x,y))
-            plt.scatter(x,y, c= "green", label='Map-rectangle')
-
-    # guru 
-    for x in range(235,301):
-        for y in range(160,199):
-            if 38*x - 65*y >= -1470:
-                map.append((x,y))
-                plt.scatter(x,y, c= "green", label='Map-rectangle')
     
-    for x in range(300,366):
-        for y in range(160,199):
-            if 38*x + 65*y <= 24270:
+    for x in range(450,601):
+        for y in range(20,230):
+            if (2*x - y <= 895) and (2*x+y <= 1145):
                 map.append((x,y))
-                plt.scatter(x,y, c= "green", label='Map-rectangle')
-
-    for x in range(300,366):
-        for y in range(58,86):
-            if 27*x - 65*y <= 4330:
+    
+    for x in range(450,601):
+        for y in range(20,230):
+            if (2*x+y <= 1156.18) and (2*x - y <= 906.18):
                 map.append((x,y))
-                plt.scatter(x,y, c= "green", label='Map-rectangle')
-
-    for x in range(235,301):
-        for y in range(58,86):
-            if 27*x + 65*y >= 11870:
+    
+    ## Printing Hexagon shape
+    for x in range(220,380):
+        for y in range(40,230):
+            if  (y - (0.577)*x - (32.692)) < 0 and (y + (0.577)*x - (378.846)) < 0 and (y - (0.577)*x + (128.846)) > 0 and (y + (0.577)*x - (217.307)) > 0 and (230 <= x <= 370):
                 map.append((x,y))
-                plt.scatter(x,y, c= "green", label='Map-rectangle')
-        
-    plt.show()
+    
     return map
 
+# The below function is used to convert the coordinates to pygame coordinates (bottom left => top left)
 def flip_coordinates(coordinates, ht):
-    # Used to convert the coordinates to pygame coordinates (bottom left => top left)
-    return (coordinates[0], ht - coordinates[1])
+    return (coordinates[0], ht-coordinates[1])
 
-def flip_rectangle_coords(coords, height, obj_height):
-    """Convert an object's coords into pygame coordinates (lower-left of object => top left in pygame coords)."""
-    return (coords[0], height - coords[1] - obj_height)
+def flip_rectangle_coords(coordinates, ht, obj_ht):
+    return (coordinates[0], ht - coordinates[1] - obj_ht)
 
-def game(closed_list, backtrack_nodes):
+def pygame_plot(closed_list, backtrack_nodes):
     pyg.init()
     display_plot = pyg.display.set_mode((600,250))
     condn = False
     clk = pyg.time.Clock()
 
 
-    clearance_rect_down = flip_rectangle_coords([95, 0], 250, 105)
-    clearance_rect_up = flip_rectangle_coords([95, 145], 250, 105)
+    rect_1 = flip_rectangle_coords([95, 0], 250, 105)
+    rect_2 = flip_rectangle_coords([95, 145], 250, 105)
 
-    clearance_triangle_1 = flip_coordinates([455, 20], 250)
-    clearance_triangle_2 = flip_coordinates([463, 20], 250)
-    clearance_triangle_3 = flip_coordinates([515.5, 125], 250)
-    clearance_triangle_4 = flip_coordinates([463, 230], 250)
-    clearance_triangle_5 = flip_coordinates([455, 230], 250)
+    triangle_vertex_1 = flip_coordinates([455, 20], 250)
+    triangle_vertex_2 = flip_coordinates([463, 20], 250)
+    triangle_vertex_3 = flip_coordinates([515.5, 125], 250)
+    triangle_vertex_4 = flip_coordinates([463, 230], 250)
+    triangle_vertex_5 = flip_coordinates([455, 230], 250)
 
-    clearance_hexagon_1 = flip_coordinates([300, 205.76], 250)
-    clearance_hexagon_2 = flip_coordinates([230, 165.38], 250)
-    clearance_hexagon_3 = flip_coordinates([230, 84.61], 250)
-    clearance_hexagon_4 = flip_coordinates([300, 44.23], 250)
-    clearance_hexagon_5 = flip_coordinates([370, 84.61], 250)
-    clearance_hexagon_6 = flip_coordinates([370, 165.38], 250)
+    hexagon_vertex_1 = flip_coordinates([300, 205.76], 250)
+    hexagon_vertex_2 = flip_coordinates([230, 165.38], 250)
+    hexagon_vertex_3 = flip_coordinates([230, 84.61], 250)
+    hexagon_vertex_4 = flip_coordinates([300, 44.23], 250)
+    hexagon_vertex_5 = flip_coordinates([370, 84.61], 250)
+    hexagon_vertex_6 = flip_coordinates([370, 165.38], 250)
 
     while not condn:
         for frame in pyg.event.get():
             if frame.type == pyg.QUIT:
                 condn = True
 
-        pyg.draw.rect(display_plot, (0,0,255), pyg.Rect(clearance_rect_down[0], clearance_rect_down[1], 60, 105))
-        pyg.draw.rect(display_plot, (0,0,255), pyg.Rect(clearance_rect_up[0], clearance_rect_up[1], 60, 105))
-        pyg.draw.polygon(display_plot, (0,0,255), ((clearance_hexagon_1),(clearance_hexagon_2),(clearance_hexagon_3),(clearance_hexagon_4),(clearance_hexagon_5),(clearance_hexagon_6)))
-        pyg.draw.polygon(display_plot, (0,0,255), ((clearance_triangle_1),(clearance_triangle_2),(clearance_triangle_3), (clearance_triangle_4), (clearance_triangle_5)))
+        pyg.draw.rect(display_plot, (0,0,255), pyg.Rect(rect_1[0], rect_1[1], 60, 105))
+        pyg.draw.rect(display_plot, (0,0,255), pyg.Rect(rect_2[0], rect_2[1], 60, 105))
+        pyg.draw.polygon(display_plot, (0,0,255), ((hexagon_vertex_1),(hexagon_vertex_2),(hexagon_vertex_3),(hexagon_vertex_4),(hexagon_vertex_5),(hexagon_vertex_6)))
+        pyg.draw.polygon(display_plot, (0,0,255), ((triangle_vertex_1),(triangle_vertex_2),(triangle_vertex_3), (triangle_vertex_4), (triangle_vertex_5)))
 
         pyg.draw.rect(display_plot, (255,0,0), pyg.Rect(100, 0, 50, 100))
         pyg.draw.rect(display_plot, (255,0,0), pyg.Rect(100, 150, 50, 100))
@@ -212,8 +161,6 @@ def game(closed_list, backtrack_nodes):
 
 def back_tracking(path, initial_state, current_node):
     optimal_path = []
-    """ initial_state = initial_state
-    current_node = current_node """
     optimal_path.append(current_node)
     parent_path = current_node
     while parent_path != initial_state:  
@@ -226,7 +173,6 @@ def back_tracking(path, initial_state, current_node):
 def check_duplicate(Node, prev_coordinates):
     for i in range(p_q.qsize()):
         if p_q.queue[i][1] == Node[1]:
-            print("co-ordinate already existing")
             if p_q.queue[i][0] > Node[0]:
                 p_q.queue[i] = Node
                 return
@@ -311,11 +257,7 @@ def ActionMoveDownRight(curr_node, obstacle_map):
         check_duplicate(new_node, (x_curr,y_curr))
 
 p_q = PriorityQueue()
-
 obstacleMap = createMap()
-#print(obstacleMap)
-
-
 sourceNode_status = False
 goalNode_status = False
 source_point = ()
@@ -358,12 +300,11 @@ node_path = {}
 source_node = (0,source_point)
 status = False
 p_q.put(source_node)
-start = time.time()
+
 while True:
     curr_node = p_q.get()
     visited_nodes.append(curr_node[1])
     (x,y) = curr_node[1]
-    #visited_nodes.append(curr_node)
     if curr_node[1] != goal_point:
         if y-1 > 0:
             ActionMoveDown(curr_node, obstacleMap)
@@ -385,15 +326,15 @@ while True:
     else:
         end = time.time()
         time_taken = end-start
-        print("Reached")
         print("Reached x coordinate is:",x)
         print("Reached y coordinate is:",y)
         print("time taken for reaching from source to destination is ", time_taken)
         backtracking_data, length = back_tracking(node_path, source_point, curr_node[1])
+        print("The backtracked data from source to goal nodes are as follows: ")
         print(backtracking_data)
+        pygame_plot(visited_nodes, backtracking_data)
         break
 
-game(visited_nodes, backtracking_data)
 
 
 
