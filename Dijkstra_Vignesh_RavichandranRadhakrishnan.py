@@ -12,7 +12,7 @@ def createMap():
     plt.xlim([0,601])
     plt.ylim([0,251])
 
-    # clearance for wall
+    # Starting clearance for wall
     for x in range(0,601):
         for y in range(0,6):
             map.append((x,y))
@@ -32,19 +32,50 @@ def createMap():
         for y in range(0,251):
             map.append((x,y))
             plt.scatter(x,y, c= "blue", label='clearance')
-
+    # Ending clearance for wall
     
     # Rectangle
- 
+    # Side 1
     for x in range(100,151):
         for y in range(0,101):
             map.append((x,y))
             plt.scatter(x,y, c= "green", label='Map-rectangle')
 
+    # Clearance
     for x in range(95,100):
         for y in range(0,101):
             map.append((x,y))
             plt.scatter(x,y, c= "blue", label='Map-rectangle')
+        for y in range(145,151):
+            map.append((x,y))
+            plt.scatter(x,y, c= "blue", label='Map-rectangle')
+
+    """ for x in range(95,100):
+        for y in range(145,151):
+            map.append((x,y))
+            plt.scatter(x,y, c= "blue", label='Map-rectangle') """
+    
+    for x in range(100,151):
+        for y in range(101,106):
+            map.append((x,y))
+            plt.scatter(x,y, c= "blue", label='Map-rectangle')
+        for y in range(145,151):
+            map.append((x,y))
+            plt.scatter(x,y, c= "blue", label='Map-rectangle')
+
+    """ for x in range(100,151):
+        for y in range(145,151):
+            map.append((x,y))
+            plt.scatter(x,y, c= "blue", label='Map-rectangle') """
+    
+    for x in range(151,156):
+        for y in range(0,106):
+            map.append((x,y))
+            plt.scatter(x,y, c= "blue", label='Map-rectangle')
+        for y in range(145,151):
+            map.append((x,y))
+            plt.scatter(x,y, c= "blue", label='Map-rectangle')
+    
     
     for x in range(100,151):
         for y in range(150,251):
@@ -112,90 +143,79 @@ def createMap():
     plt.show()
     return map
 
-def game(explored, optimal_path):
+def flip_coordinates(coordinates, ht):
+    # Used to convert the coordinates to pygame coordinates (bottom left => top left)
+    return (coordinates[0], ht - coordinates[1])
+
+def flip_rectangle_coords(coords, height, obj_height):
+    """Convert an object's coords into pygame coordinates (lower-left of object => top left in pygame coords)."""
+    return (coords[0], height - coords[1] - obj_height)
+
+def game(closed_list, backtrack_nodes):
     pyg.init()
-    surface = pyg.display.set_mode((600,250))
-    color_1 = "skyblue"
-    color_2 = "teal"
-    Condition = True
-    # video = vidmaker.Video("Path_planner.mp4", late_export=True)
-    clock = pyg.time.Clock()
+    display_plot = pyg.display.set_mode((600,250))
+    condn = False
+    clk = pyg.time.Clock()
 
 
-    clearance_rect_down = flip_coords_rect([95, 0], 250, 105)
-    clearance_rect_up = flip_coords_rect([95, 145], 250, 105)
-    original_rect_down = flip_coords_rect([100, 0], 250, 100)
-    original_rect_up = flip_coords_rect([100, 150], 250, 100)
+    clearance_rect_down = flip_rectangle_coords([95, 0], 250, 105)
+    clearance_rect_up = flip_rectangle_coords([95, 145], 250, 105)
 
-    clearance_triangle_1 = flip_coords([455, 20], 250)
-    clearance_triangle_2 = flip_coords([463, 20], 250)
-    clearance_triangle_3 = flip_coords([515.5, 125], 250)
-    clearance_triangle_4 = flip_coords([463, 230], 250)
-    clearance_triangle_5 = flip_coords([455, 230], 250)
+    clearance_triangle_1 = flip_coordinates([455, 20], 250)
+    clearance_triangle_2 = flip_coordinates([463, 20], 250)
+    clearance_triangle_3 = flip_coordinates([515.5, 125], 250)
+    clearance_triangle_4 = flip_coordinates([463, 230], 250)
+    clearance_triangle_5 = flip_coordinates([455, 230], 250)
 
-    original_triangle_1 = flip_coords([460, 25], 250)
-    original_triangle_2 = flip_coords([460, 225], 250)
-    original_triangle_3 = flip_coords([510, 125], 250)
+    clearance_hexagon_1 = flip_coordinates([300, 205.76], 250)
+    clearance_hexagon_2 = flip_coordinates([230, 165.38], 250)
+    clearance_hexagon_3 = flip_coordinates([230, 84.61], 250)
+    clearance_hexagon_4 = flip_coordinates([300, 44.23], 250)
+    clearance_hexagon_5 = flip_coordinates([370, 84.61], 250)
+    clearance_hexagon_6 = flip_coordinates([370, 165.38], 250)
 
-    clearance_hexagon_1 = flip_coords([300, 205.76], 250)
-    clearance_hexagon_2 = flip_coords([230, 165.38], 250)
-    clearance_hexagon_3 = flip_coords([230, 84.61], 250)
-    clearance_hexagon_4 = flip_coords([300, 44.23], 250)
-    clearance_hexagon_5 = flip_coords([370, 84.61], 250)
-    clearance_hexagon_6 = flip_coords([370, 165.38], 250)
+    while not condn:
+        for frame in pyg.event.get():
+            if frame.type == pyg.QUIT:
+                condn = True
 
-    original_hexagon_1 = flip_coords([235,87.5], 250)
-    original_hexagon_2 = flip_coords([300,50], 250)
-    original_hexagon_3 = flip_coords([365,87.5], 250)
-    original_hexagon_4 = flip_coords([365,162.5], 250)
-    original_hexagon_5 = flip_coords([300,200], 250)
-    original_hexagon_6 = flip_coords([235,162.5], 250)
+        pyg.draw.rect(display_plot, (0,0,255), pyg.Rect(clearance_rect_down[0], clearance_rect_down[1], 60, 105))
+        pyg.draw.rect(display_plot, (0,0,255), pyg.Rect(clearance_rect_up[0], clearance_rect_up[1], 60, 105))
+        pyg.draw.polygon(display_plot, (0,0,255), ((clearance_hexagon_1),(clearance_hexagon_2),(clearance_hexagon_3),(clearance_hexagon_4),(clearance_hexagon_5),(clearance_hexagon_6)))
+        pyg.draw.polygon(display_plot, (0,0,255), ((clearance_triangle_1),(clearance_triangle_2),(clearance_triangle_3), (clearance_triangle_4), (clearance_triangle_5)))
 
-    while Condition:
-        for loop in pyg.event.get():
-            if loop.type == pyg.QUIT:
-                Condition = False
+        pyg.draw.rect(display_plot, (255,0,0), pyg.Rect(100, 0, 50, 100))
+        pyg.draw.rect(display_plot, (255,0,0), pyg.Rect(100, 150, 50, 100))
+        pyg.draw.polygon(display_plot, (255,0,0), ((235,87.5),(300,50),(365,87.5),(365,162.5),(300,200),(235,162.5)))
+        pyg.draw.polygon(display_plot, (255,0,0), ((460, 25),(460, 225),(510, 125)))
+        
+        ## Wall definition
+        pyg.draw.rect(display_plot, (0,0,255) ,pyg.Rect(0, 0, 5, 250))
+        pyg.draw.rect(display_plot, (0,0,255) ,pyg.Rect(595, 0, 5, 250))
+        pyg.draw.rect(display_plot, (0,0,255) ,pyg.Rect(0, 0, 600, 5))
+        pyg.draw.rect(display_plot, (0,0,255) ,pyg.Rect(0, 245, 600, 5))
 
-        pyg.draw.rect(surface, color_2, pyg.Rect(clearance_rect_down[0], clearance_rect_down[1], 60, 105))
-        pyg.draw.rect(surface, color_2, pyg.Rect(clearance_rect_up[0], clearance_rect_up[1], 60, 105))
-        pyg.draw.rect(surface, color_1, pyg.Rect(original_rect_down[0], original_rect_down[1], 50, 100))
-        pyg.draw.rect(surface, color_1, pyg.Rect(original_rect_up[0], original_rect_up[1], 50, 100))
-
-        pyg.draw.polygon(surface, color_2, ((clearance_triangle_1),(clearance_triangle_2),(clearance_triangle_3), (clearance_triangle_4), (clearance_triangle_5)))
-        pyg.draw.polygon(surface, color_1, ((original_triangle_1),(original_triangle_2),(original_triangle_3)))
-
-        pyg.draw.polygon(surface, color_2, ((clearance_hexagon_1),(clearance_hexagon_2),(clearance_hexagon_3),(clearance_hexagon_4),(clearance_hexagon_5),(clearance_hexagon_6)))
-        pyg.draw.polygon(surface, color_1, ((original_hexagon_1),(original_hexagon_2),(original_hexagon_3),(original_hexagon_4),(original_hexagon_5),(original_hexagon_6)))
-
-        pyg.draw.rect(surface, color_2 ,pyg.Rect(0, 0, 600, 5))
-        pyg.draw.rect(surface, color_2 ,pyg.Rect(0, 245, 600, 5))
-        pyg.draw.rect(surface, color_2 ,pyg.Rect(0, 0, 5, 250))
-        pyg.draw.rect(surface, color_2 ,pyg.Rect(595, 0, 5, 250))
-
-        for j in explored:
-            pyg.draw.circle(surface, "lightcyan", flip_coords(j, 250), 1)
-            # video.update(pyg.surfarray.pixels3d(surface).swapaxes(0, 1), inverted=False)
+        for val in closed_list:
+            pyg.draw.circle(display_plot, "purple", flip_coordinates(val, 250), 1)
             pyg.display.flip()
-            clock.tick(700)
+            clk.tick(500)
 
-        for i in optimal_path:
-            pyg.draw.circle(surface, "darkslategray", flip_coords(i, 250), 1)
-            # video.update(pyg.surfarray.pixels3d(surface).swapaxes(0, 1), inverted=False)
+        for item in backtrack_nodes:
+            pyg.draw.circle(display_plot, "gray", flip_coordinates(item, 250), 1)
             pyg.display.flip()
-            clock.tick(10)
+            clk.tick(30)
         pyg.display.flip()
         pyg.time.wait(3000)
-        Condition = False
+        condn = True
     pyg.quit()
 
 
 def back_tracking(path, initial_state, current_node):
     optimal_path = []
-    initial_state = tuple([tuple(x) for x in initial_state])
-    current_node = tuple([tuple(x) for x in current_node])
+    """ initial_state = initial_state
+    current_node = current_node """
     optimal_path.append(current_node)
-    parent_path = tuple([tuple(i) for i in current_node])
-    optimal_path.append(parent_path)
+    parent_path = current_node
     while parent_path != initial_state:  
         parent_path = path[parent_path]
         optimal_path.append(parent_path)
@@ -327,7 +347,7 @@ while goalNode_status == False:
 
     if goal_point not in obstacleMap:
         goalNode_status = True
-        print("The entered goal node co-ordinate is not an obtsacle. ")
+        print("The entered goal node co-ordinate is not an obstacle. ")
         break
 
     else:
@@ -369,9 +389,11 @@ while True:
         print("Reached x coordinate is:",x)
         print("Reached y coordinate is:",y)
         print("time taken for reaching from source to destination is ", time_taken)
+        backtracking_data, length = back_tracking(node_path, source_point, curr_node[1])
+        print(backtracking_data)
         break
-        #backtracking_data, length = back_tracking(node_path, source_point, curr_node[1])
-        
+
+game(visited_nodes, backtracking_data)
 
 
 
