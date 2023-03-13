@@ -8,88 +8,88 @@ def createMap():
     map = []
 
     # Starting clearance for wall
-    for x in range(0,601):
-        for y in range(0,6):
-            map.append((x,y))
+    for i in range(0,601):
+        for j in range(0,6):
+            map.append((i,j))
 
-    for x in range(0,601):
-        for y in range(245,251):
-            map.append((x,y))
+    for i in range(0,601):
+        for j in range(245,251):
+            map.append((i,j))
 
-    for x in range(0,6):
-        for y in range(0,251):
-            map.append((x,y))
+    for i in range(0,6):
+        for j in range(0,251):
+            map.append((i,j))
 
-    for x in range(595,601):
-        for y in range(0,251):
-            map.append((x,y))
+    for i in range(595,601):
+        for j in range(0,251):
+            map.append((i,j))
     # Ending clearance for wall
     
     # Rectangle
-    for x in range(100,151):
-        for y in range(0,101):
-            map.append((x,y))
+    for i in range(100,151):
+        for j in range(0,101):
+            map.append((i,j))
 
     # Clearance
-    for x in range(95,100):
-        for y in range(0,101):
-            map.append((x,y))
+    for i in range(95,100):
+        for j in range(0,101):
+            map.append((i,j))
 
-    for x in range(95,100):
-        for y in range(145,151):
-            map.append((x,y))
+    for i in range(95,100):
+        for j in range(145,151):
+            map.append((i,j))
     
     ## Rectangle clearance and obstacle
-    for x in range(100,151):
-        for y in range(101,106):
-            map.append((x,y))
-        for y in range(145,151):
-            map.append((x,y))
+    for i in range(100,151):
+        for j in range(101,106):
+            map.append((i,j))
+        for j in range(145,151):
+            map.append((i,j))
 
-    for x in range(151,156):
-        for y in range(0,106):
-            map.append((x,y))
-        for y in range(145,250):
-            map.append((x,y))
+    for i in range(151,156):
+        for j in range(0,106):
+            map.append((i,j))
+        for j in range(145,250):
+            map.append((i,j))
     
-    for x in range(100,151):
-        for y in range(150,251):
-            map.append((x,y))
+    for i in range(100,151):
+        for j in range(150,251):
+            map.append((i,j))
     
-    for x in range(95,100):
-        for y in range(150,251):
-            map.append((x,y))
+    for i in range(95,100):
+        for j in range(150,251):
+            map.append((i,j))
 
-    for x in range(95,100):
-        for y in range(100,105):
-            map.append((x,y))
+    for i in range(95,100):
+        for j in range(100,105):
+            map.append((i,j))
     
-    for x in range(100,151):
-        for y in range(101,105):
-            map.append((x,y))
+    for i in range(100,151):
+        for j in range(101,105):
+            map.append((i,j))
     
 
     ############ Triangle 
 
-    for x in range(455,460):
-        for y in range(20,230):
-            map.append((x,y))
+    for i in range(455,460):
+        for j in range(20,230):
+            map.append((i,j))
     
-    for x in range(450,601):
-        for y in range(20,230):
-            if (2*x - y <= 895) and (2*x+y <= 1145):
-                map.append((x,y))
+    for i in range(450,601):
+        for j in range(20,230):
+            if (2*i - j <= 895) and (2*i+j <= 1145):
+                map.append((i,j))
     
-    for x in range(450,601):
-        for y in range(20,230):
-            if (2*x+y <= 1156.18) and (2*x - y <= 906.18):
-                map.append((x,y))
+    for i in range(450,601):
+        for j in range(20,230):
+            if (2*i+j <= 1156.18) and (2*i - j <= 906.18):
+                map.append((i,j))
     
     ## Printing Hexagon shape
-    for x in range(220,380):
-        for y in range(40,230):
-            if  (y - (0.577)*x - (32.692)) < 0 and (y + (0.577)*x - (378.846)) < 0 and (y - (0.577)*x + (128.846)) > 0 and (y + (0.577)*x - (217.307)) > 0 and (230 <= x <= 370):
-                map.append((x,y))
+    for i in range(220,380):
+        for j in range(40,230):
+            if  (j - (0.577)*i - (32.692)) < 0 and (j + (0.577)*i - (378.846)) < 0 and (j - (0.577)*i + (128.846)) > 0 and (j + (0.577)*i - (217.307)) > 0 and (230 <= i <= 370):
+                map.append((i,j))
     
     return map
 
